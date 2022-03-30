@@ -14,6 +14,7 @@ from typing import List
 
 import numpy as np
 import torch
+
 from fairseq.data import FairseqDataset, data_utils
 from fairseq.distributed import utils as distributed_utils
 
@@ -44,6 +45,7 @@ def default_virtual_size_func(datasets, ratios, max_scale_up=1.5):
 class CollateFormat(Enum):
     single = 1
     ordered_dict = 2
+    ordered_dict_simple = 3
 
 
 class SampledMultiDataset(FairseqDataset):
@@ -253,7 +255,7 @@ class SampledMultiDataset(FairseqDataset):
         """Merge a list of samples to form a mini-batch."""
         if len(samples) == 0:
             return None
-        if self.collate_format == "ordered_dict":
+        if self.collate_format == CollateFormat.ordered_dict:
             collect_samples = [[] for _ in range(len(self.datasets))]
             for (i, sample) in samples:
                 collect_samples[i].append(sample)
@@ -327,6 +329,9 @@ class SampledMultiDataset(FairseqDataset):
                 batch["tgt_lang_id"] = straight_order(
                     [b["tgt_lang_id"] for b in batches]
                 )
+        if self.collate_format == CollateFormat.ordered_dict_simple:
+            example_ds_idx, _ = next(iter(samples))
+            return OrderedDict([(self.keys[example_ds_idx], batch)])
         return batch
 
     @property
