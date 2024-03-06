@@ -157,8 +157,7 @@ class MultilingualTranslationTask(LegacyFairseqTask):
                 assert dicts[lang].eos() == dicts[sorted_langs[0]].eos()
                 assert dicts[lang].unk() == dicts[sorted_langs[0]].unk()
             if args.encoder_langtok is not None or args.decoder_langtok:
-                for lang_to_add in sorted_langs:
-                    dicts[lang].add_symbol(_lang_token(lang_to_add))
+                pass
             logger.info("[{}] dictionary: {} types".format(lang, len(dicts[lang])))
         return dicts, training
 
