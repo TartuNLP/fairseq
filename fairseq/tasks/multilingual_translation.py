@@ -161,11 +161,13 @@ class MultilingualTranslationTask(LegacyFairseqTask):
             logger.info("[{}] dictionary: {} types".format(lang, len(dicts[lang])))
         return dicts, training
 
-    def get_encoder_langtok(self, src_lang, tgt_lang):
+    def get_encoder_langtok(self, src_lang, tgt_lang, true_src_lang):
+        logger.info(f"SRC_LANG: {src_lang}")
+        logger.info(f"TRUE_SRC_LANG: {true_src_lang}")
         if self.args.encoder_langtok is None:
             return self.dicts[src_lang].eos()
         if self.args.encoder_langtok == "src":
-            return _lang_token_index(self.dicts[src_lang], src_lang)
+            return _lang_token_index(self.dicts[src_lang], true_src_lang)
         else:
             return _lang_token_index(self.dicts[src_lang], tgt_lang)
 
@@ -181,6 +183,7 @@ class MultilingualTranslationTask(LegacyFairseqTask):
         src_lang=None,
         tgt_eos=None,
         tgt_lang=None,
+        true_src_lang=None
     ):
         if self.args.encoder_langtok is None and not self.args.decoder_langtok:
             return lang_pair_dataset
@@ -192,7 +195,7 @@ class MultilingualTranslationTask(LegacyFairseqTask):
             and src_lang is not None
             and tgt_lang is not None
         ):
-            new_src_eos = self.get_encoder_langtok(src_lang, tgt_lang)
+            new_src_eos = self.get_encoder_langtok(src_lang, tgt_lang, true_src_lang)
         else:
             src_eos = None
 
